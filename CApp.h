@@ -38,12 +38,10 @@ public:
 	// PROGRAM-SPECIFIC FUNCTIONS HERE
 
 private:
-	bool Running;
-	bool InputHappened;
-	bool NeedsRedraw;
+	bool _running;
 
-	SDL_Window*   Window;
-	SDL_Renderer* Renderer;
+	SDL_Window*   _window;
+	SDL_Renderer* _renderer;
 
 	// PROGRAM-SPECIFIC MEMBERS HERE
 	

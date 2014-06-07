@@ -8,7 +8,7 @@ public:
 	CEvent();
 	virtual ~CEvent();
 
-	virtual void handle_event(SDL_Event* Event);
+	virtual void handle_event(const SDL_Event* Event);
 
 	virtual void OnInputFocus(Uint32 windowID);
 	virtual void OnInputBlur(Uint32 windowID);

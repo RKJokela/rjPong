@@ -3,7 +3,7 @@
 CEvent::CEvent() { }
 CEvent::~CEvent() { }
 
-void CEvent::OnEvent(SDL_Event* Event) {
+void CEvent::handle_event(const SDL_Event* Event) {
 	switch (Event->type) {
 	case SDL_WINDOWEVENT:
 		switch (Event->window.event) {
