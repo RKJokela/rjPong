@@ -1,8 +1,7 @@
 #ifndef INTERFACES_H_INCLUDED
 #define INTERFACES_H_INCLUDED
 
-union GameInputs;
-union SDL_Event;
+#include <SDL.h>
 
 class IMover
 {
@@ -13,7 +12,7 @@ public:
 class ITakesInput
 {
 public:
-	virtual void handle_input(GameInputs input) = 0;
+	virtual void handle_input() = 0;
 };
 
 class IGameState
@@ -22,6 +21,7 @@ public:
 	virtual void handle_event(const SDL_Event* e) = 0;
 	virtual void update() = 0;
 	virtual void draw() = 0;
+	virtual void set_renderer(SDL_Renderer* r) = 0;
 };
 
 #endif // !INTERFACES_H_INCLUDED

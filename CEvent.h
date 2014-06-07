@@ -8,8 +8,9 @@ public:
 	CEvent();
 	virtual ~CEvent();
 
-	virtual void handle_event(const SDL_Event* Event);
+	virtual void handle_event(const SDL_Event* e);
 
+private:
 	virtual void OnInputFocus(Uint32 windowID);
 	virtual void OnInputBlur(Uint32 windowID);
 	virtual void OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool repeat);

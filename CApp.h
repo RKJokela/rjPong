@@ -5,7 +5,7 @@
 #include "Defines.h"
 #include "CEvent.h"
 // OTHER INCLUDES HERE
-
+#include "CGame.h"
 // -------------------
 
 union GameInputs {
@@ -44,7 +44,8 @@ private:
 	SDL_Renderer* _renderer;
 
 	// PROGRAM-SPECIFIC MEMBERS HERE
-	
+	IGameState* _currentState;
+	CGame _game;	
 };
 
 #endif	//	CAPP_H

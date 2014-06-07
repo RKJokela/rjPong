@@ -17,7 +17,26 @@
 #define GMASK		0x0000ff00
 #define BMASK		0x000000ff
 #define AMASK		0xff000000
+#define RSHIFT		16
+#define GSHIFT		8
+#define BSHIFT		0
+#define ASHIFT		24
 #define COLORKEY	0x0000ffff	// Cyan
+
+//--COLORS--
+#define COLOR_BG	0xff000000	// black	0xff094270	// cool blue-teal
+#define COLOR_FG	0xffffffff	// white
+
+#define GETR(PIXEL)	(((PIXEL)&RMASK)>>RSHIFT)
+#define GETG(PIXEL)	(((PIXEL)&GMASK)>>GSHIFT)
+#define GETB(PIXEL)	(((PIXEL)&BMASK)>>BSHIFT)
+#define GETA(PIXEL)	(((PIXEL)&AMASK)>>ASHIFT)
+
+#define MAKE_SDL_COLOR(PIXEL) {\
+	GETR(PIXEL), \
+	GETG(PIXEL), \
+	GETB(PIXEL), \
+	GETA(PIXEL)}
 
 //--GAME--
 // Game Framerate cap in frames/sec
