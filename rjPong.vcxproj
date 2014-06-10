@@ -74,14 +74,20 @@
     <ClCompile Include="CApp.cpp" />
     <ClCompile Include="CEvent.cpp" />
     <ClCompile Include="CGame.cpp" />
+    <ClCompile Include="CPlayerPaddle.cpp" />
+    <ClCompile Include="CRectEntity.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CApp.h" />
     <ClInclude Include="CEvent.h" />
+    <ClInclude Include="CGamestate.h" />
+    <ClInclude Include="CPlayerPaddle.h" />
+    <ClInclude Include="CRectEntity.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="CGame.h" />
     <ClInclude Include="Interfaces.h" />
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

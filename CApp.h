@@ -5,19 +5,8 @@
 #include "Defines.h"
 #include "CEvent.h"
 // OTHER INCLUDES HERE
-#include "CGame.h"
 // -------------------
-
-union GameInputs {
-	struct menu {
-		bool confirm;
-		bool cancel;
-	};
-	struct game {
-		bool up;
-		bool down;
-	};
-};
+#include "CGame.h"
 
 class CApp : public CEvent {
 public:
@@ -44,7 +33,7 @@ private:
 	SDL_Renderer* _renderer;
 
 	// PROGRAM-SPECIFIC MEMBERS HERE
-	IGameState* _currentState;
+	CGameState* _currentState;
 	CGame _game;	
 };
 

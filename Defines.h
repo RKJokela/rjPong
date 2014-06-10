@@ -43,5 +43,18 @@
 #define FPS			60
 // Time per frame in ms
 #define MS_PER_FRAME	(1000.0/FPS)
+// Ball
+#define BALL_SIZE	20					// square
+#define BALL_VEL	5.0					// pixels per frame
+#define BALL_COLOR	COLOR_FG
+// Paddle
+#define PADDLE_W	20
+#define PADDLE_H	100					// can be changed during game
+#define PADDLE_SCREEN_OFFSET	50		// distance from edge of screen
+#define PADDLE_VEL	5.0					// pixels per frame
+#define	PADDLE_COLOR COLOR_FG
+// Directions in degrees
+#define UP			270.0
+#define DOWN		90.0
 
 #endif	//	DEFINES_H
