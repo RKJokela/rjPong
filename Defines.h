@@ -56,5 +56,9 @@
 // Directions in degrees
 #define UP			270.0
 #define DOWN		90.0
+// Size of score display
+#define SCORE_PX_SIZE	10
+#define SCORE_W			4*SCORE_PX_SIZE
+#define SCORE_H			7*SCORE_PX_SIZE
 
 #endif	//	DEFINES_H

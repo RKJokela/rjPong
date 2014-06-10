@@ -48,10 +48,152 @@ void CGame::update() {
 	_paddleRight->update();
 }
 
+const SDL_Rect centerline = {
+	SCREEN_W / 2 - 1,
+	0,
+	2,
+	SCREEN_H
+};
+
+const char* digits[10][7] = {
+	{
+		"####",
+		"#  #",
+		"#  #",
+		"#  #",
+		"#  #",
+		"#  #",
+		"####"
+	},
+	{
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+	},
+	{
+		"####",
+		"   #",
+		"   #",
+		"####",
+		"#   ",
+		"#   ",
+		"####"
+	},
+	{
+		"####",
+		"   #",
+		"   #",
+		"####",
+		"   #",
+		"   #",
+		"####"
+	},
+	{
+		"#  #",
+		"#  #",
+		"#  #",
+		"####",
+		"   #",
+		"   #",
+		"   #"
+	},
+	{
+		"####",
+		"#   ",
+		"#   ",
+		"####",
+		"   #",
+		"   #",
+		"####"
+	},
+	{
+		"####",
+		"#   ",
+		"#   ",
+		"####",
+		"#  #",
+		"#  #",
+		"####"
+	},
+	{
+		"####",
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+		"   #",
+	},
+	{
+		"####",
+		"#  #",
+		"#  #",
+		"####",
+		"#  #",
+		"#  #",
+		"####"
+	},
+	{
+		"####",
+		"#  #",
+		"#  #",
+		"####",
+		"   #",
+		"   #",
+		"   #"
+	}
+};
+
+// uses currently set render draw color
+void draw_digit(SDL_Renderer* r, Uint8 digit, int x, int y, int pxSize = SCORE_PX_SIZE) {
+	if (digit > 9)
+		return;
+	SDL_Rect px[28] = { 0 };
+	int count = 0;
+	const char** digPts = digits[digit];
+	int posX = x, posY = y;
+	for (int i = 0; i < 7; i++) {
+		const char* digRow = *digPts;
+		// draw the row
+		for (int j = 0; j < 4; j++) {
+			char ch = *digRow;
+			if (ch == '#') {
+				// set the rect
+				px[count].x = posX;
+				px[count].y = posY;
+				px[count].h = pxSize;
+				px[count].w = pxSize;
+				// increment count
+				count++;
+			}
+			posX += pxSize;
+			digRow++;
+		}
+		// increment row
+		posY += pxSize;
+		digPts++;
+		// reset x
+		posX = x;
+	}
+
+	// now, draw it
+	SDL_RenderFillRects(r, px, count);
+}
+
 void CGame::draw() {
 	// fill background
 	SDL_SetRenderDrawColor(_r, bgColor.r, bgColor.g, bgColor.b, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(_r);
+	// draw centerline
+	SDL_SetRenderDrawColor(_r, fgColor.r, fgColor.g, fgColor.b, SDL_ALPHA_OPAQUE);
+	SDL_RenderFillRect(_r, &centerline);
+	// draw scores
+	draw_digit(_r, 3, (SCREEN_W - SCORE_W) / 2 - 100, SCORE_PX_SIZE);
+	draw_digit(_r, 2, (SCREEN_W - SCORE_W) / 2 + 100, SCORE_PX_SIZE);
 	// draw paddles
 	_paddleLeft->draw(_r);
 	_paddleRight->draw(_r);
