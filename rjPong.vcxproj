@@ -72,6 +72,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CApp.cpp" />
+    <ClCompile Include="CBall.cpp" />
     <ClCompile Include="CEvent.cpp" />
     <ClCompile Include="CGame.cpp" />
     <ClCompile Include="CPlayerPaddle.cpp" />
@@ -80,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CApp.h" />
+    <ClInclude Include="CBall.h" />
     <ClInclude Include="CEvent.h" />
     <ClInclude Include="CGamestate.h" />
     <ClInclude Include="CPlayerPaddle.h" />

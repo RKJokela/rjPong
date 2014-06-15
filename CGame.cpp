@@ -5,7 +5,8 @@ const SDL_Color bgColor = MAKE_SDL_COLOR(COLOR_BG);
 const SDL_Color fgColor = MAKE_SDL_COLOR(COLOR_FG);
 
 CGame::CGame() :
-_r(NULL) {
+_r(NULL), _ball(),
+scoreLeft(0), scoreRight(0) {
 	_listInputHandlers = NULL;
 	CPlayerPaddle* left  = new CPlayerPaddle(CPlayerPaddle::LEFT);
 	CPlayerPaddle* right = new CPlayerPaddle(CPlayerPaddle::RIGHT);
@@ -46,6 +47,25 @@ void CGame::update() {
 	}
 	_paddleLeft->update();
 	_paddleRight->update();
+	_ball.update();
+
+	// scoring
+	bool gameOver = false;
+	if (_ball.scoredLeft) {
+		_ball.reset();
+		if (++scoreLeft >= 9)
+			gameOver = true;
+	}
+	else if (_ball.scoredRight) {
+		_ball.reset();
+		if (++scoreRight >= 9)
+			gameOver = true;
+	}
+	if (gameOver) {
+		SDL_Event e;
+		e.type = SDL_QUIT;
+		SDL_PeepEvents(&e, 1, SDL_ADDEVENT, 0, 0);
+	}
 }
 
 const SDL_Rect centerline = {
@@ -192,11 +212,13 @@ void CGame::draw() {
 	SDL_SetRenderDrawColor(_r, fgColor.r, fgColor.g, fgColor.b, SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(_r, &centerline);
 	// draw scores
-	draw_digit(_r, 3, (SCREEN_W - SCORE_W) / 2 - 100, SCORE_PX_SIZE);
-	draw_digit(_r, 2, (SCREEN_W - SCORE_W) / 2 + 100, SCORE_PX_SIZE);
+	draw_digit(_r, scoreLeft, (SCREEN_W - SCORE_W) / 2 - 100, SCORE_PX_SIZE);
+	draw_digit(_r, scoreRight, (SCREEN_W - SCORE_W) / 2 + 100, SCORE_PX_SIZE);
 	// draw paddles
 	_paddleLeft->draw(_r);
 	_paddleRight->draw(_r);
+	// draw ball
+	_ball.draw(_r);
 
 	// show onscreen
 	SDL_RenderPresent(_r);
@@ -225,6 +247,14 @@ void CGame::OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool r
 		SDL_Event quitEvent;
 		quitEvent.type = SDL_QUIT;
 		SDL_PeepEvents(&quitEvent, 1, SDL_ADDEVENT, 0, 0);
+		break;
+	//	QUICK AND DIRTY TESTING HERE
+	case SDLK_r:
+		_ball.reset();
+		scoreLeft = scoreRight = 0;
+		break;
+	case SDLK_SPACE:
+		_ball.change_vel(BALL_VEL, SDL_GetTicks()%360);
 		break;
 	default:
 		break;

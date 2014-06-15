@@ -30,14 +30,13 @@ public:
 protected:
 	double    _x;
 	double    _y;
+	double    _velocity;
+	// stored in radians
+	double    _direction;
 	SDL_Rect  _boundingBox;
 
 private:
 	void _update_bbox();
-
-	double    _velocity;
-	// stored in radians
-	double    _direction;
 	SDL_Color _drawColor;
 };
 

@@ -5,6 +5,7 @@
 #include "CGamestate.h"
 #include "CEvent.h"
 #include "CPlayerPaddle.h"
+#include "CBall.h"
 
 extern const SDL_Color bgColor;
 extern const SDL_Color fgColor;
@@ -28,8 +29,11 @@ private:
 
 	CRectEntity* _paddleLeft;
 	CRectEntity* _paddleRight;
+	CBall _ball;
 	SDL_Renderer* _r;
 	GameInputs _inputs;
+	int scoreLeft;
+	int scoreRight;
 };
 
 #endif // !CGAME_H_INCLUDED
