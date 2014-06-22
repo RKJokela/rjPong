@@ -16,7 +16,7 @@ _playerSide(side) {
 	_boundingBox.w = PADDLE_W;
 	_boundingBox.h = PADDLE_H;
 	// set color
-	set_color(GETR(PADDLE_COLOR), GETG(PADDLE_COLOR), GETB(PADDLE_COLOR));
+	set_color(PADDLE_COLOR);
 	// position bounding box
 	cancel_vel();
 	update();

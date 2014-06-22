@@ -1,17 +1,21 @@
 #include "CGame.h"
-#include "Defines.h"
+
+#define L CPlayerPaddle::LEFT
+#define R CPlayerPaddle::RIGHT
 
 const SDL_Color bgColor = MAKE_SDL_COLOR(COLOR_BG);
 const SDL_Color fgColor = MAKE_SDL_COLOR(COLOR_FG);
 
 CGame::CGame() :
 _r(NULL), _ball(),
-scoreLeft(0), scoreRight(0) {
+_drawRects(0) {
+	_scores[L] = 0;
+	_scores[R] = 0;
 	_listInputHandlers = NULL;
-	CPlayerPaddle* left  = new CPlayerPaddle(CPlayerPaddle::LEFT);
-	CPlayerPaddle* right = new CPlayerPaddle(CPlayerPaddle::RIGHT);
-	_paddleLeft  = left;
-	_paddleRight = right;
+	CPlayerPaddle* left  = new CPlayerPaddle(L);
+	CPlayerPaddle* right = new CPlayerPaddle(R);
+	_paddles[L]  = left;
+	_paddles[R] = right;
 	_listInputHandlers = new inputNode;
 	_listInputHandlers->entity = left;
 	_listInputHandlers->next = new inputNode;
@@ -26,8 +30,8 @@ scoreLeft(0), scoreRight(0) {
 CGame::~CGame()
 {
 	// remove the paddles
-	delete _paddleLeft;
-	delete _paddleRight;
+	delete _paddles[L];
+	delete _paddles[R];
 	while (_listInputHandlers != NULL) {
 		inputNodePtr tmp = _listInputHandlers->next;
 		delete _listInputHandlers;
@@ -45,20 +49,98 @@ void CGame::update() {
 		ih->entity->handle_input(_inputs);
 		ih = ih->next;
 	}
-	_paddleLeft->update();
-	_paddleRight->update();
+	_paddles[L]->update();
+	_paddles[R]->update();
 	_ball.update();
+
+	// collisions
+	double ballX = _ball.get_x();
+	double ballY = _ball.get_y();
+	if (_ball.get_vx() < 0. &&
+		ballX <= _paddles[L]->get_x() + PADDLE_W)
+	{	// hit left paddle
+		double paddleTop = _paddles[L]->get_y();
+		double paddleBot = paddleTop + _paddles[L]->get_bounding_box()->h;
+		double paddleLft = _paddles[L]->get_x();
+		double paddleRgt = paddleLft + _paddles[L]->get_bounding_box()->w;
+		double crW = paddleRgt - ballX;
+		double crH = (ballY < paddleTop ? (ballY + BALL_SIZE - paddleTop) : \
+			(ballY + BALL_SIZE > paddleBot) ? (paddleBot - ballY) : \
+			BALL_SIZE);
+		if (crH > 0.0) {
+			if (crH > crW) // hit side
+			{
+				double ballCtrY = ballY + 0.5*BALL_SIZE;
+				double paddCtrY = 0.5*(paddleTop + paddleBot);
+				double ctrOffsetNorm = 2*(ballCtrY - paddCtrY)/(paddleBot - paddleTop);
+				SDL_assert(abs(ctrOffsetNorm) <= 1.0);
+				_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
+				_ball.bounce_x(paddleRgt);
+			}
+			else if (ballX + BALL_SIZE >= paddleLft) { // hit top or bottom
+				if (ballY < paddleTop) {// hit top
+					if (_ball.get_vy() > 0.0)
+						_ball.bounce_y(paddleTop - BALL_SIZE);
+					if (_paddles[L]->get_vy() < 0.0)
+						_ball.change_vel_y(_paddles[L]->get_vy());
+				}
+				else if (ballY + BALL_SIZE > paddleBot) { // hit bottom
+					if (_ball.get_vy() < 0.0)
+						_ball.bounce_y(paddleBot);
+					if (_paddles[L]->get_vy() > 0.0)
+						_ball.change_vel_y(_paddles[L]->get_vy());
+				}
+			}
+		}
+	}
+	else if (_ball.get_vx() > 0. &&
+		ballX + BALL_SIZE >= _paddles[R]->get_x()) 
+	{	// hit right paddle
+		double paddleTop = _paddles[R]->get_y();
+		double paddleBot = paddleTop + _paddles[R]->get_bounding_box()->h;
+		double paddleLft = _paddles[R]->get_x();
+		double paddleRgt = paddleLft + _paddles[R]->get_bounding_box()->w;
+		double crW = ballX + BALL_SIZE - paddleLft;
+		double crH = (ballY < paddleTop ? (ballY + BALL_SIZE - paddleTop) : \
+			(ballY + BALL_SIZE > paddleBot) ? (paddleBot - ballY) : \
+			BALL_SIZE);
+		if (crH > 0.0) {
+			if (crH > crW) // hit side
+			{
+				double ballCtrY = ballY + 0.5*BALL_SIZE;
+				double paddCtrY = 0.5*(paddleTop + paddleBot);
+				double ctrOffsetNorm = 2 * (ballCtrY - paddCtrY) / (paddleBot - paddleTop);
+				SDL_assert(abs(ctrOffsetNorm) <= 1.0);
+				_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
+				_ball.bounce_x(paddleLft - BALL_SIZE);
+			}
+			else if (ballX <= paddleRgt) { // hit top or bottom
+				if (ballY < paddleTop) {// hit top
+					if (_ball.get_vy() > 0.0)
+						_ball.bounce_y(paddleTop - BALL_SIZE);
+					if (_paddles[R]->get_vy() < 0.0)
+						_ball.change_vel_y(_paddles[R]->get_vy());
+				}
+				else if (ballY + BALL_SIZE > paddleBot) { // hit bottom
+					if (_ball.get_vy() < 0.0)
+						_ball.bounce_y(paddleBot);
+					if (_paddles[R]->get_vy() > 0.0)
+						_ball.change_vel_y(_paddles[R]->get_vy());
+				}
+			}
+		}
+	}
 
 	// scoring
 	bool gameOver = false;
 	if (_ball.scoredLeft) {
 		_ball.reset();
-		if (++scoreLeft >= 9)
+		if (++_scores[R] >= SCORE_MAX)
 			gameOver = true;
 	}
 	else if (_ball.scoredRight) {
 		_ball.reset();
-		if (++scoreRight >= 9)
+		if (++_scores[L] >= SCORE_MAX)
 			gameOver = true;
 	}
 	if (gameOver) {
@@ -169,7 +251,7 @@ const char* digits[10][7] = {
 };
 
 // uses currently set render draw color
-void draw_digit(SDL_Renderer* r, Uint8 digit, int x, int y, int pxSize = SCORE_PX_SIZE) {
+void CGame::_draw_digit(Uint8 digit, int x, int y, int pxSize) {
 	if (digit > 9)
 		return;
 	SDL_Rect px[28] = { 0 };
@@ -201,24 +283,26 @@ void draw_digit(SDL_Renderer* r, Uint8 digit, int x, int y, int pxSize = SCORE_P
 	}
 
 	// now, draw it
-	SDL_RenderFillRects(r, px, count);
+	_fill_rects(px, count);
 }
 
 void CGame::draw() {
+	// empty the drawn boxes list
+	_drawRects.clear();
 	// fill background
 	SDL_SetRenderDrawColor(_r, bgColor.r, bgColor.g, bgColor.b, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(_r);
 	// draw centerline
 	SDL_SetRenderDrawColor(_r, fgColor.r, fgColor.g, fgColor.b, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(_r, &centerline);
+	_fill_rect(&centerline);
 	// draw scores
-	draw_digit(_r, scoreLeft, (SCREEN_W - SCORE_W) / 2 - 100, SCORE_PX_SIZE);
-	draw_digit(_r, scoreRight, (SCREEN_W - SCORE_W) / 2 + 100, SCORE_PX_SIZE);
+	_draw_digit(_scores[L], (SCREEN_W - SCORE_W) / 2 - 3*SCORE_OFFSET, SCORE_OFFSET);
+	_draw_digit(_scores[R], (SCREEN_W - SCORE_W) / 2 + 3*SCORE_OFFSET, SCORE_OFFSET);
 	// draw paddles
-	_paddleLeft->draw(_r);
-	_paddleRight->draw(_r);
+	_paddles[L]->draw(_r);
+	_paddles[R]->draw(_r);
 	// draw ball
-	_ball.draw(_r);
+	_ball.draw(_r, _drawRects);
 
 	// show onscreen
 	SDL_RenderPresent(_r);
@@ -229,6 +313,7 @@ void CGame::set_renderer(SDL_Renderer* r) {
 }
 
 void CGame::OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool repeat) {
+	int angle = 0;
 	switch (key) {
 	case SDLK_UP:
 		_inputs.game.r_up = true;
@@ -251,10 +336,13 @@ void CGame::OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool r
 	//	QUICK AND DIRTY TESTING HERE
 	case SDLK_r:
 		_ball.reset();
-		scoreLeft = scoreRight = 0;
+		_scores[L] = _scores[R] = 0;
 		break;
 	case SDLK_SPACE:
-		_ball.change_vel(BALL_VEL, SDL_GetTicks()%360);
+		do {
+			angle = SDL_GetTicks() % 360;
+		} while ((angle >= 70 && angle <= 110) || (angle >= 250 && angle <= 290));
+		_ball.change_vel(BALL_VEL, angle);
 		break;
 	default:
 		break;
@@ -279,3 +367,16 @@ void CGame::OnKeyUp(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool rep
 		break;
 	}
 }
+
+void CGame::_fill_rect(const SDL_Rect* rect) {
+	_drawRects.push_back(*rect);
+	SDL_RenderFillRect(_r, rect);
+}
+void CGame::_fill_rects(const SDL_Rect* first, int count) {
+	for (int i = 0; i < count; i++)
+		_drawRects.push_back(first[i]);
+	SDL_RenderFillRects(_r, first, count);
+}
+
+#undef L
+#undef R

@@ -1,12 +1,14 @@
 #include "CRectEntity.h"
 #include "Utilities.h"
+#include "Defines.h"
 #include <cmath>
 
 using namespace std;
 
 CRectEntity::CRectEntity(double maxVel) :
 MAX_VELOCITY(maxVel),
-_velocity(0.0),
+_vx(0.0),
+_vy(0.0),
 _direction(0.0),
 _x(0.0),
 _y(0.0) {
@@ -21,10 +23,8 @@ _y(0.0) {
 }
 
 void CRectEntity::update() {
-	double vx = _velocity*cos(_direction);
-	double vy = _velocity*sin(_direction);
-	_x += vx;
-	_y += vy;
+	_x += _vx;
+	_y += _vy;
 	_update_bbox();
 }
 
@@ -43,41 +43,72 @@ void CRectEntity::change_vel(double amt, double dir) {
 	// convert to radians
 	dir = dir * M_PI / 180.0;
 	// get x & y components
-	double vx0 = _velocity*cos(_direction);
-	double vy0 = _velocity*sin(_direction);
 	double vx1 = amt*cos(dir);
 	double vy1 = amt*sin(dir);
 	// add new velocity
-	vx1 += vx0;
-	vy1 += vy0;
+	_vx += vx1;
+	_vy += vy1;
 	// get new direction
-	_direction = atan2(vy1, vx1);
+	_direction = atan2(_vy, _vx);
 	// get new velocity
-	_velocity = sqrt(vx1*vx1 + vy1*vy1);
+	double velocity = sqrt(_vx*_vx + _vy*_vy);
 	// clamp to max vel
-	_velocity = CLAMP(_velocity, 0.0, MAX_VELOCITY);
+	if (velocity > 0) {
+		double vClamp = CLAMP(velocity, 0.0, MAX_VELOCITY);
+		_vx *= vClamp / velocity;
+		_vy *= vClamp / velocity;
+	}
 }
 
 void CRectEntity::cancel_vel() {
-	_velocity = 0.0;
+	_vx = _vy = 0.0;
 }
 
 void CRectEntity::accelerate(double amt) {
-	_velocity = CLAMP(_velocity + amt, 0.0, MAX_VELOCITY);
+	change_vel(amt, _direction);
 }
 
 void CRectEntity::decelerate(double amt) {
-	_velocity = CLAMP(_velocity - amt, 0.0, MAX_VELOCITY);
+	// get old vels
+	double velocity = sqrt(_vx*_vx + _vy*_vy);
+	// check if stopped
+	if (amt < velocity)
+		change_vel(-amt, _direction);
+	else {
+		_vx = 0;
+		_vy = 0;
+	}
 }
 
 double CRectEntity::get_vel() const {
-	return _velocity;
+	return sqrt(_vx*_vx + _vy*_vy);
+}
+
+double CRectEntity::get_direction() const {
+	return _direction;
+}
+
+double CRectEntity::get_x() const {
+	return _x;
+}
+double CRectEntity::get_y() const {
+	return _y;
+}
+
+double CRectEntity::get_vx() const {
+	return _vx;
+}
+double CRectEntity::get_vy() const {
+	return _vy;
 }
 
 void CRectEntity::set_color(Uint8 r, Uint8 g, Uint8 b) {
 	_drawColor.r = r;
 	_drawColor.g = g;
 	_drawColor.b = b;
+}
+void CRectEntity::set_color(Uint32 color) {
+	set_color(GETR(color), GETG(color), GETB(color));
 }
 
 const SDL_Rect* CRectEntity::get_bounding_box() const {
