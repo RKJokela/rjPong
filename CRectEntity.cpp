@@ -65,7 +65,7 @@ void CRectEntity::cancel_vel() {
 }
 
 void CRectEntity::accelerate(double amt) {
-	change_vel(amt, _direction);
+	change_vel(amt, _direction*180.0/M_PI);
 }
 
 void CRectEntity::decelerate(double amt) {
@@ -73,10 +73,10 @@ void CRectEntity::decelerate(double amt) {
 	double velocity = sqrt(_vx*_vx + _vy*_vy);
 	// check if stopped
 	if (amt < velocity)
-		change_vel(-amt, _direction);
+		change_vel(-amt, _direction*180.0 / M_PI);
 	else {
-		_vx = 0;
-		_vy = 0;
+		_vx = 0.0;
+		_vy = 0.0;
 	}
 }
 

@@ -44,9 +44,11 @@
 // Time per frame in ms
 #define MS_PER_FRAME	(1000.0/FPS)
 // Ball
-#define BALL_SIZE	15					// square
-#define BALL_VEL	6.0					// pixels per frame
-#define BALL_COLOR	COLOR_FG
+#define BALL_SIZE			15					// square
+#define BALL_VEL_INIT		5.0					// pixels per frame
+#define BALL_VEL_MAX		100.0
+#define BALL_ACCEL_ON_HIT	0.5					// speeds up as volley goes on
+#define BALL_COLOR			COLOR_FG
 // Paddle
 #define PADDLE_W	20
 #define PADDLE_H	120					// can be changed during game

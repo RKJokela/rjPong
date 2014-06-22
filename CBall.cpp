@@ -1,7 +1,7 @@
 #include "CBall.h"
 #include "Defines.h"
 
-CBall::CBall() : CRectEntity(BALL_VEL) {
+CBall::CBall() : CRectEntity(BALL_VEL_MAX) {
 	reset();
 	CRectEntity::update();
 	set_color(BALL_COLOR);
@@ -42,19 +42,23 @@ void CBall::bounce_x(double reflect) {
 	double diff = _x - reflect;
 	_x -= 2 * diff;
 	_vx = -_vx;
+	_update_direction();
 }
 
 void CBall::bounce_y(double reflect) {
 	double diff = _y - reflect;
 	_y -= 2 * diff;
 	_vy = -_vy;
+	_update_direction();
 }
 
 void CBall::change_vel_x(double dv) {
 	_vx += dv;
+	_update_direction();
 }
 void CBall::change_vel_y(double dv) {
 	_vy += dv;
+	_update_direction();
 }
 
 /*

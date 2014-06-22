@@ -72,10 +72,11 @@ void CGame::update() {
 			{
 				double ballCtrY = ballY + 0.5*BALL_SIZE;
 				double paddCtrY = 0.5*(paddleTop + paddleBot);
-				double ctrOffsetNorm = 2*(ballCtrY - paddCtrY)/(paddleBot - paddleTop);
+				double ctrOffsetNorm = 2*(ballCtrY - paddCtrY)/(paddleBot - paddleTop + BALL_SIZE);
 				SDL_assert(abs(ctrOffsetNorm) <= 1.0);
 				_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
 				_ball.bounce_x(paddleRgt);
+				_ball.accelerate(BALL_ACCEL_ON_HIT);
 			}
 			else if (ballX + BALL_SIZE >= paddleLft) { // hit top or bottom
 				if (ballY < paddleTop) {// hit top
@@ -109,10 +110,11 @@ void CGame::update() {
 			{
 				double ballCtrY = ballY + 0.5*BALL_SIZE;
 				double paddCtrY = 0.5*(paddleTop + paddleBot);
-				double ctrOffsetNorm = 2 * (ballCtrY - paddCtrY) / (paddleBot - paddleTop);
+				double ctrOffsetNorm = 2 * (ballCtrY - paddCtrY) / (paddleBot - paddleTop + BALL_SIZE);
 				SDL_assert(abs(ctrOffsetNorm) <= 1.0);
 				_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
 				_ball.bounce_x(paddleLft - BALL_SIZE);
+				_ball.accelerate(BALL_ACCEL_ON_HIT);
 			}
 			else if (ballX <= paddleRgt) { // hit top or bottom
 				if (ballY < paddleTop) {// hit top
@@ -342,7 +344,7 @@ void CGame::OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool r
 		do {
 			angle = SDL_GetTicks() % 360;
 		} while ((angle >= 70 && angle <= 110) || (angle >= 250 && angle <= 290));
-		_ball.change_vel(BALL_VEL, angle);
+		_ball.change_vel(BALL_VEL_INIT, angle);
 		break;
 	default:
 		break;
