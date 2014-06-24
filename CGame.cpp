@@ -1,30 +1,36 @@
 #include "CGame.h"
+#include "Utilities.h"
 
-#define L CPlayerPaddle::LEFT
-#define R CPlayerPaddle::RIGHT
+#define L side::LEFT
+#define R side::RIGHT
 
 const SDL_Color bgColor = MAKE_SDL_COLOR(COLOR_BG);
 const SDL_Color fgColor = MAKE_SDL_COLOR(COLOR_FG);
 
 CGame::CGame() :
 _r(NULL), _ball(),
-_drawRects(0) {
+_drawRects(0),
+_waiting(false),
+_waitTicks(0) {
 	_scores[L] = 0;
 	_scores[R] = 0;
 	_listInputHandlers = NULL;
-	CPlayerPaddle* left  = new CPlayerPaddle(L);
+	CAiPaddle* left = new CAiPaddle(L);
 	CPlayerPaddle* right = new CPlayerPaddle(R);
 	_paddles[L]  = left;
 	_paddles[R] = right;
 	_listInputHandlers = new inputNode;
-	_listInputHandlers->entity = left;
-	_listInputHandlers->next = new inputNode;
+	_listInputHandlers->entity = right;
+	_listInputHandlers->next = NULL; /*new inputNode;
 	_listInputHandlers->next->entity = right;
-	_listInputHandlers->next->next = NULL;
+	_listInputHandlers->next->next = NULL; */
 	_inputs.game.l_down = false;
 	_inputs.game.l_up = false;
 	_inputs.game.r_down = false;
 	_inputs.game.r_up = false;
+	left->set_ball(&_ball);
+	_waitTicks = 1500 / MS_PER_FRAME;
+	_waiting = true;
 }
 
 CGame::~CGame()
@@ -50,8 +56,7 @@ void CGame::update() {
 		ih = ih->next;
 	}
 
-	//auto pOld = _ball.get_bounding_box();
-	//SDL_Rect oldBallPos = { pOld->x, pOld->y, pOld->w, pOld->h };
+	start_ball();
 	
 	SDL_Rect futurePos = { 0 };
 	_ball.future(futurePos);
@@ -146,11 +151,15 @@ void CGame::update() {
 	bool gameOver = false;
 	if (_ball.scoredLeft) {
 		_ball.reset();
+		_waitTicks = 1000 / MS_PER_FRAME;
+		_waiting = true;
 		if (++_scores[R] >= SCORE_MAX)
 			gameOver = true;
 	}
 	else if (_ball.scoredRight) {
 		_ball.reset();
+		_waitTicks = 1000 / MS_PER_FRAME;
+		_waiting = true;
 		if (++_scores[L] >= SCORE_MAX)
 			gameOver = true;
 	}
@@ -321,6 +330,24 @@ void CGame::draw() {
 
 void CGame::set_renderer(SDL_Renderer* r) {
 	_r = r;
+}
+
+void CGame::start_ball() {
+	static bool started = false;
+	if (_waitTicks > 0)
+		started = false;
+	if (!_waiting && !started) {
+		auto angle = SDL_GetTicks() % 180 - 45;
+		if (angle >= 45)
+			angle += 180;
+		if (angle < 0)
+			angle += 360;
+		_ball.change_vel(BALL_VEL_INIT, angle);
+		started = true;
+	}
+	_waitTicks = MAX(0, _waitTicks - 1);
+	if (!_waitTicks)
+		_waiting = false;
 }
 
 void CGame::OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool repeat) {
@@ -500,7 +527,7 @@ void CGame::_handle_collisions(const SDL_Rect* newBallPos) {
 		double numerator = _ball.get_y() + 0.5*BALL_SIZE - ((double)paddleBox->y + 0.5*paddleBox->h);
 		int denominator = paddleBox->h + BALL_SIZE;
 		double ratio = 2.0 * numerator / denominator;
-		//_ball.change_vel_y(ratio*PADDLE_HIT_DV_MAX);
+		_ball.change_vel_y(ratio*PADDLE_HIT_DV_MAX);
 		_ball.change_vel_y(PADDLE_HIT_DV_RATIO*paddle->get_vy());
 		_ball.accelerate(BALL_ACCEL_ON_HIT);
 	}

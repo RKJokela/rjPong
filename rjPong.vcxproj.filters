@@ -36,6 +36,9 @@
     <ClCompile Include="CBall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CAiPaddle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interfaces.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CBall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAiPaddle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

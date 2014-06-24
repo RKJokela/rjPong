@@ -39,6 +39,12 @@
 	GETA(PIXEL)}
 
 //--GAME--
+
+enum side {
+	LEFT = 0,
+	RIGHT
+};
+
 // Game Framerate cap in frames/sec
 #define FPS			100
 // Time per frame in ms
@@ -56,7 +62,7 @@
 #define PADDLE_VEL	5.0					// pixels per frame
 #define	PADDLE_COLOR COLOR_FG
 #define PADDLE_HIT_DV_MAX		1.0
-#define PADDLE_HIT_DV_RATIO		0.5
+#define PADDLE_HIT_DV_RATIO		0.3
 // Directions in degrees
 #define UP			270.0
 #define DOWN		90.0

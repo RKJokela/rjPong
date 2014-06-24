@@ -71,6 +71,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CAiPaddle.cpp" />
     <ClCompile Include="CApp.cpp" />
     <ClCompile Include="CBall.cpp" />
     <ClCompile Include="CEvent.cpp" />
@@ -80,6 +81,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAiPaddle.h" />
     <ClInclude Include="CApp.h" />
     <ClInclude Include="CBall.h" />
     <ClInclude Include="CEvent.h" />

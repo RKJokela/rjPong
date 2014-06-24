@@ -6,6 +6,7 @@
 #include "CGamestate.h"
 #include "CEvent.h"
 #include "CPlayerPaddle.h"
+#include "CAiPaddle.h"
 #include "CBall.h"
 #include "Defines.h"
 
@@ -25,6 +26,8 @@ public:
 	void set_renderer(SDL_Renderer* r);
 	// !CGameState
 
+	void start_ball();
+
 private:
 	void OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool repeat);
 	void OnKeyUp  (SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool repeat);
@@ -40,6 +43,9 @@ private:
 	SDL_Renderer* _r;
 	GameInputs _inputs;
 	int _scores[2];
+
+	bool _waiting;
+	int _waitTicks;
 };
 
 #endif // !CGAME_H_INCLUDED
