@@ -11,6 +11,9 @@ public:
 	void reset();
 	void update();
 
+	// fills a rect with the projected position of the ball
+	void future(SDL_Rect& futureRect);
+
 	void bounce_x(double reflectLine);
 	void bounce_y(double reflectLine);
 

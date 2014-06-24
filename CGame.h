@@ -32,6 +32,7 @@ private:
 	void _fill_rect(const SDL_Rect* rect);
 	void _fill_rects(const SDL_Rect* first, int count);
 	void _draw_digit(Uint8 digit, int x, int y, int pxSize = SCORE_PX_SIZE);
+	void _handle_collisions(const SDL_Rect* oldBallPos);
 
 	CRectEntity* _paddles[2];
 	CBall _ball;

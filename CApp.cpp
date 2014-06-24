@@ -39,8 +39,8 @@ bool CApp::init() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 		return false;
 
-	SDL_CreateWindowAndRenderer(SCREEN_W, SCREEN_H, 0, &_window, &_renderer);
-	SDL_SetWindowTitle(_window, TITLE);
+	_window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, 0);
+	_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_PRESENTVSYNC);
 	SDL_SetRenderDrawColor(_renderer, GETR(COLOR_BG), GETG(COLOR_BG), GETB(COLOR_BG), SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(_renderer);
 

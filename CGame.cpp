@@ -49,89 +49,98 @@ void CGame::update() {
 		ih->entity->handle_input(_inputs);
 		ih = ih->next;
 	}
+
+	//auto pOld = _ball.get_bounding_box();
+	//SDL_Rect oldBallPos = { pOld->x, pOld->y, pOld->w, pOld->h };
+	
+	SDL_Rect futurePos = { 0 };
+	_ball.future(futurePos);
+
+	_handle_collisions(&futurePos);
+
+	_ball.update();
 	_paddles[L]->update();
 	_paddles[R]->update();
-	_ball.update();
 
-	// collisions
-	double ballX = _ball.get_x();
-	double ballY = _ball.get_y();
-	if (_ball.get_vx() < 0. &&
-		ballX <= _paddles[L]->get_x() + PADDLE_W)
-	{	// hit left paddle
-		double paddleTop = _paddles[L]->get_y();
-		double paddleBot = paddleTop + _paddles[L]->get_bounding_box()->h;
-		double paddleLft = _paddles[L]->get_x();
-		double paddleRgt = paddleLft + _paddles[L]->get_bounding_box()->w;
-		double crW = paddleRgt - ballX;
-		double crH = (ballY < paddleTop ? (ballY + BALL_SIZE - paddleTop) : \
-			(ballY + BALL_SIZE > paddleBot) ? (paddleBot - ballY) : \
-			BALL_SIZE);
-		if (crH > 0.0) {
-			if (crH > crW) // hit side
-			{
-				double ballCtrY = ballY + 0.5*BALL_SIZE;
-				double paddCtrY = 0.5*(paddleTop + paddleBot);
-				double ctrOffsetNorm = 2*(ballCtrY - paddCtrY)/(paddleBot - paddleTop + BALL_SIZE);
-				SDL_assert(abs(ctrOffsetNorm) <= 1.0);
-				_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
-				_ball.bounce_x(paddleRgt);
-				_ball.accelerate(BALL_ACCEL_ON_HIT);
-			}
-			else if (ballX + BALL_SIZE >= paddleLft) { // hit top or bottom
-				if (ballY < paddleTop) {// hit top
-					if (_ball.get_vy() > 0.0)
-						_ball.bounce_y(paddleTop - BALL_SIZE);
-					if (_paddles[L]->get_vy() < 0.0)
-						_ball.change_vel_y(_paddles[L]->get_vy());
-				}
-				else if (ballY + BALL_SIZE > paddleBot) { // hit bottom
-					if (_ball.get_vy() < 0.0)
-						_ball.bounce_y(paddleBot);
-					if (_paddles[L]->get_vy() > 0.0)
-						_ball.change_vel_y(_paddles[L]->get_vy());
-				}
-			}
-		}
-	}
-	else if (_ball.get_vx() > 0. &&
-		ballX + BALL_SIZE >= _paddles[R]->get_x()) 
-	{	// hit right paddle
-		double paddleTop = _paddles[R]->get_y();
-		double paddleBot = paddleTop + _paddles[R]->get_bounding_box()->h;
-		double paddleLft = _paddles[R]->get_x();
-		double paddleRgt = paddleLft + _paddles[R]->get_bounding_box()->w;
-		double crW = ballX + BALL_SIZE - paddleLft;
-		double crH = (ballY < paddleTop ? (ballY + BALL_SIZE - paddleTop) : \
-			(ballY + BALL_SIZE > paddleBot) ? (paddleBot - ballY) : \
-			BALL_SIZE);
-		if (crH > 0.0) {
-			if (crH > crW) // hit side
-			{
-				double ballCtrY = ballY + 0.5*BALL_SIZE;
-				double paddCtrY = 0.5*(paddleTop + paddleBot);
-				double ctrOffsetNorm = 2 * (ballCtrY - paddCtrY) / (paddleBot - paddleTop + BALL_SIZE);
-				SDL_assert(abs(ctrOffsetNorm) <= 1.0);
-				_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
-				_ball.bounce_x(paddleLft - BALL_SIZE);
-				_ball.accelerate(BALL_ACCEL_ON_HIT);
-			}
-			else if (ballX <= paddleRgt) { // hit top or bottom
-				if (ballY < paddleTop) {// hit top
-					if (_ball.get_vy() > 0.0)
-						_ball.bounce_y(paddleTop - BALL_SIZE);
-					if (_paddles[R]->get_vy() < 0.0)
-						_ball.change_vel_y(_paddles[R]->get_vy());
-				}
-				else if (ballY + BALL_SIZE > paddleBot) { // hit bottom
-					if (_ball.get_vy() < 0.0)
-						_ball.bounce_y(paddleBot);
-					if (_paddles[R]->get_vy() > 0.0)
-						_ball.change_vel_y(_paddles[R]->get_vy());
-				}
-			}
-		}
-	}
+	// OLD COLLISION CODE
+	//double ballX = _ball.get_x();
+	//double ballY = _ball.get_y();
+	//if (_ball.get_vx() < 0. &&
+	//	ballX <= _paddles[L]->get_x() + PADDLE_W)
+	//{	// hit left paddle
+	//	double paddleTop = _paddles[L]->get_y();
+	//	double paddleBot = paddleTop + _paddles[L]->get_bounding_box()->h;
+	//	double paddleLft = _paddles[L]->get_x();
+	//	double paddleRgt = paddleLft + _paddles[L]->get_bounding_box()->w;
+	//	double crW = paddleRgt - ballX;
+	//	double crH = (ballY < paddleTop ? (ballY + BALL_SIZE - paddleTop) : \
+	//		(ballY + BALL_SIZE > paddleBot) ? (paddleBot - ballY) : \
+	//		BALL_SIZE);
+	//	if (crH > 0.0) {
+	//		if (crH > crW) // hit side
+	//		{
+	//			double ballCtrY = ballY + 0.5*BALL_SIZE;
+	//			double paddCtrY = 0.5*(paddleTop + paddleBot);
+	//			double ctrOffsetNorm = 2*(ballCtrY - paddCtrY)/(paddleBot - paddleTop + BALL_SIZE);
+	//			SDL_assert(abs(ctrOffsetNorm) <= 1.0);
+	//			_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
+	//			_ball.bounce_x(paddleRgt);
+	//			_ball.accelerate(BALL_ACCEL_ON_HIT);
+	//		}
+	//		else if (ballX + BALL_SIZE >= paddleLft) { // hit top or bottom
+	//			if (ballY < paddleTop) {// hit top
+	//				if (_ball.get_vy() > 0.0)
+	//					_ball.bounce_y(paddleTop - BALL_SIZE);
+	//				if (_paddles[L]->get_vy() < 0.0)
+	//					_ball.change_vel_y(_paddles[L]->get_vy());
+	//			}
+	//			else if (ballY + BALL_SIZE > paddleBot) { // hit bottom
+	//				if (_ball.get_vy() < 0.0)
+	//					_ball.bounce_y(paddleBot);
+	//				if (_paddles[L]->get_vy() > 0.0)
+	//					_ball.change_vel_y(_paddles[L]->get_vy());
+	//			}
+	//		}
+	//	}
+	//}
+	//else if (_ball.get_vx() > 0. &&
+	//	ballX + BALL_SIZE >= _paddles[R]->get_x()) 
+	//{	// hit right paddle
+	//	double paddleTop = _paddles[R]->get_y();
+	//	double paddleBot = paddleTop + _paddles[R]->get_bounding_box()->h;
+	//	double paddleLft = _paddles[R]->get_x();
+	//	double paddleRgt = paddleLft + _paddles[R]->get_bounding_box()->w;
+	//	double crW = ballX + BALL_SIZE - paddleLft;
+	//	double crH = (ballY < paddleTop ? (ballY + BALL_SIZE - paddleTop) : \
+	//		(ballY + BALL_SIZE > paddleBot) ? (paddleBot - ballY) : \
+	//		BALL_SIZE);
+	//	if (crH > 0.0) {
+	//		if (crH > crW) // hit side
+	//		{
+	//			double ballCtrY = ballY + 0.5*BALL_SIZE;
+	//			double paddCtrY = 0.5*(paddleTop + paddleBot);
+	//			double ctrOffsetNorm = 2 * (ballCtrY - paddCtrY) / (paddleBot - paddleTop + BALL_SIZE);
+	//			SDL_assert(abs(ctrOffsetNorm) <= 1.0);
+	//			_ball.change_vel_y(ctrOffsetNorm*PADDLE_HIT_DV_MAX);
+	//			_ball.bounce_x(paddleLft - BALL_SIZE);
+	//			_ball.accelerate(BALL_ACCEL_ON_HIT);
+	//		}
+	//		else if (ballX <= paddleRgt) { // hit top or bottom
+	//			if (ballY < paddleTop) {// hit top
+	//				if (_ball.get_vy() > 0.0)
+	//					_ball.bounce_y(paddleTop - BALL_SIZE);
+	//				if (_paddles[R]->get_vy() < 0.0)
+	//					_ball.change_vel_y(_paddles[R]->get_vy());
+	//			}
+	//			else if (ballY + BALL_SIZE > paddleBot) { // hit bottom
+	//				if (_ball.get_vy() < 0.0)
+	//					_ball.bounce_y(paddleBot);
+	//				if (_paddles[R]->get_vy() > 0.0)
+	//					_ball.change_vel_y(_paddles[R]->get_vy());
+	//			}
+	//		}
+	//	}
+	//}
 
 	// scoring
 	bool gameOver = false;
@@ -343,7 +352,7 @@ void CGame::OnKeyDown(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool r
 	case SDLK_SPACE:
 		do {
 			angle = SDL_GetTicks() % 360;
-		} while ((angle >= 70 && angle <= 110) || (angle >= 250 && angle <= 290));
+		} while ((angle >= 60 && angle <= 120) || (angle >= 240 && angle <= 300));
 		_ball.change_vel(BALL_VEL_INIT, angle);
 		break;
 	default:
@@ -378,6 +387,129 @@ void CGame::_fill_rects(const SDL_Rect* first, int count) {
 	for (int i = 0; i < count; i++)
 		_drawRects.push_back(first[i]);
 	SDL_RenderFillRects(_r, first, count);
+}
+
+// collisions
+// NEW METHOD:
+//	extend a line from each vertex of bounding box from old position to new
+//	use ball's x velocity to determine which paddle to check for collision (only check if moving toward paddle - should avoid stutters)
+//	for front 2 lines, intersect with paddle bounding box
+//	cases:
+//		all 4 lines intersect: just reflect x direction
+//		
+void CGame::_handle_collisions(const SDL_Rect* newBallPos) {
+	enum {
+		frontTop = 0,
+		frontBot,
+		backTop,
+		backBot,
+		CORNERS
+	};
+	static int framesSinceLastCollision = 0;
+	bool left = (_ball.get_vx() < 0);
+	const CRectEntity* paddle = left ? _paddles[L] : _paddles[R];
+	const SDL_Rect* paddleBox = paddle->get_bounding_box();
+	const SDL_Rect* oldBallPos = _ball.get_bounding_box();
+	bool up    = (_ball.get_vy() < 0);
+	bool upRel = (_ball.get_vy() - paddle->get_vy() < 0);
+	int fr0 = left ? oldBallPos->x : oldBallPos->x + oldBallPos->w;
+	int fr1 = left ? newBallPos->x : newBallPos->x + newBallPos->w;
+	int ba0 = left ? oldBallPos->x + oldBallPos->w : oldBallPos->x;
+	int ba1 = left ? newBallPos->x + newBallPos->w : newBallPos->x;
+	int tp0 = oldBallPos->y;
+	int tp1 = newBallPos->y;
+	int bt0 = oldBallPos->y + oldBallPos->h;
+	int bt1 = newBallPos->y + newBallPos->h;
+
+	bool hitPaddle = false;
+	bool reflectX = false, reflectY = false;
+	int paddleEdge = left ? paddleBox->x + paddleBox->w - 1: paddleBox->x;
+	int reflectLine = left ? paddleEdge : paddleEdge - BALL_SIZE;
+
+	SDL_Point pos0[CORNERS];
+	SDL_Point pos1[CORNERS];
+	SDL_bool hit[CORNERS] = { SDL_FALSE };
+
+	pos0[frontTop] = { fr0, tp0 };
+	pos0[frontBot] = { fr0, bt0 };
+	pos0[backTop]  = { ba0, tp0 };
+	pos0[backBot]  = { ba0, bt0 };
+	pos1[frontTop] = { fr1, tp1 };
+	pos1[frontBot] = { fr1, bt1 };
+	pos1[backTop]  = { ba1, tp1 };
+	pos1[backBot]  = { ba1, bt1 };
+
+	// check for crosses
+	for (int i = 0; i < CORNERS; ++i) {
+		hit[i] = SDL_IntersectRectAndLine(paddleBox, &pos0[i].x, &pos0[i].y, &pos1[i].x, &pos1[i].y);
+		hitPaddle = hitPaddle || hit[i];
+	}
+
+	if (!hitPaddle || framesSinceLastCollision < 10) {
+		++framesSinceLastCollision;
+		return; // don't waste your time
+	}
+
+	framesSinceLastCollision = 0;
+
+	// case 1: both front lines cross
+	if (hit[frontTop] && hit[frontBot])
+		reflectX = true;
+	// case 2: ball hit upper part of paddle
+	else if (hit[frontBot]) {
+		if (upRel) // traveling up (relative to paddle!)
+			reflectX = true;
+		else { // traveling down (relative to paddle)
+			if (pos0[frontBot].x == paddleEdge) // hit side
+				reflectX = true;
+			else { // hit top
+				reflectY = true;
+				reflectLine = paddleBox->y - BALL_SIZE;
+			}
+		}
+	}
+	// case 3: ball hit lower part of paddle
+	else if (hit[frontTop]) {
+		if (!upRel) // traveling down (relative to paddle)
+			reflectX = true;
+		else { // traveling up (relative to paddle)
+			if (pos0[frontTop].x == paddleEdge) // hit side
+				reflectX = true;
+			else { // hit bottom
+				reflectY = true;
+				reflectLine = paddleBox->y + paddleBox->h;
+			}
+		}
+	}
+	// front lines don't cross, but we have collision, so must be one of back lines
+	// case 4: back of ball grazed top of paddle, traveling down
+	else if (hit[backBot]) {
+		reflectY = true;
+		reflectLine = paddleBox->y - BALL_SIZE;
+	}
+	// case 5: back of ball grazed bottom of paddle, traveling up
+	else if (hit[backTop]) {
+		reflectY = true;
+		reflectLine = paddleBox->y + paddleBox->h;
+	}
+
+	// now, do the proper bounce
+	if (reflectX) {
+		_ball.bounce_x(reflectLine);
+		// get ball offset from paddle center
+		double numerator = _ball.get_y() + 0.5*BALL_SIZE - ((double)paddleBox->y + 0.5*paddleBox->h);
+		int denominator = paddleBox->h + BALL_SIZE;
+		double ratio = 2.0 * numerator / denominator;
+		//_ball.change_vel_y(ratio*PADDLE_HIT_DV_MAX);
+		_ball.change_vel_y(PADDLE_HIT_DV_RATIO*paddle->get_vy());
+		_ball.accelerate(BALL_ACCEL_ON_HIT);
+	}
+	else if (reflectY) {
+		_ball.bounce_y(reflectLine);
+		_ball.change_vel_y(paddle->get_vy());
+	}
+	else // should never get here!
+		SDL_assert(SDL_FALSE && "ERROR IN COLLISION CODE!");
 }
 
 #undef L

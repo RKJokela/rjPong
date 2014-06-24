@@ -1,5 +1,6 @@
 #include "CBall.h"
 #include "Defines.h"
+#include <cmath>
 
 CBall::CBall() : CRectEntity(BALL_VEL_MAX) {
 	reset();
@@ -38,16 +39,23 @@ void CBall::update() {
 	_update_direction();
 }
 
+void CBall::future(SDL_Rect& futureRect) {
+	futureRect.x = (int)round(_x + _vx);
+	futureRect.y = (int)round(_y + _vy);
+	futureRect.w = _boundingBox.w;
+	futureRect.h = _boundingBox.h;
+}
+
 void CBall::bounce_x(double reflect) {
-	double diff = _x - reflect;
-	_x -= 2 * diff;
+	//double diff = _x - reflect;
+	//_x -= 2 * diff;
 	_vx = -_vx;
 	_update_direction();
 }
 
 void CBall::bounce_y(double reflect) {
-	double diff = _y - reflect;
-	_y -= 2 * diff;
+	//double diff = _y - reflect;
+	//_y -= 2 * diff;
 	_vy = -_vy;
 	_update_direction();
 }

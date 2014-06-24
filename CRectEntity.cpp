@@ -62,6 +62,7 @@ void CRectEntity::change_vel(double amt, double dir) {
 
 void CRectEntity::cancel_vel() {
 	_vx = _vy = 0.0;
+	_update_bbox();
 }
 
 void CRectEntity::accelerate(double amt) {
