@@ -337,8 +337,9 @@ void CGame::start_ball() {
 	if (_waitTicks > 0)
 		started = false;
 	if (!_waiting && !started) {
-		auto angle = SDL_GetTicks() % 180 - 45;
-		if (angle >= 45)
+		auto angle = SDL_GetTicks() % 61 - 30;
+		auto flip  = SDL_GetTicks() % 2;
+		if (flip)
 			angle += 180;
 		if (angle < 0)
 			angle += 360;
